@@ -75,9 +75,11 @@ export class ProductController {
     @UploadedFiles() images: Express.Multer.File[],
   ) {
     if (!Array.isArray(productBody?.categories))
-      productBody.categories = [+productBody.categories];
+      productBody.categories = [productBody.categories];
 
     productBody.images = images;
+
+    console.log(productBody);
 
     return this.productService.addNewProduct(productBody);
   }

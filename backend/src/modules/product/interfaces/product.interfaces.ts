@@ -1,11 +1,9 @@
 import { Type } from 'class-transformer';
 import {
-  IsArray,
-  IsInt,
   IsNotEmpty,
   IsNumber,
-  IsNumberString,
   IsOptional,
+  IsPositive,
   IsString,
 } from 'class-validator';
 
@@ -22,18 +20,27 @@ export class AddProductDTO {
     { allowInfinity: false, allowNaN: false },
     { message: 'invalid price' },
   )
+  @IsPositive({ message: 'price cannot be negative' })
   @IsNotEmpty()
+  @Type(() => Number)
   price: number;
 
   @IsNumber(
     { allowNaN: false, allowInfinity: false },
     { message: 'invalid stock' },
   )
+  @IsPositive({ message: 'stock cannot be negative' })
   @IsNotEmpty()
+  @Type(() => Number)
   stock: number;
 
   @IsOptional()
-  @IsInt({ each: true, message: 'invalid category' })
+  @IsNumber(
+    { allowInfinity: false, allowNaN: false },
+    { each: true, message: 'invalid category' },
+  )
+  @IsPositive({ message: 'invalid category', each: true })
+  @Type(() => Number)
   categories: number[];
 
   images: Express.Multer.File[];
@@ -51,6 +58,7 @@ export class ProductQuery {
     { message: 'invalid max price' },
   )
   @IsOptional()
+  @IsPositive({ message: 'price cannot be negative' })
   @Type(() => Number)
   max_price?: number;
 
@@ -59,6 +67,7 @@ export class ProductQuery {
     { message: 'invalid min price' },
   )
   @IsOptional()
+  @IsPositive({ message: 'price cannot be negative' })
   @Type(() => Number)
   min_price?: number;
 
@@ -67,6 +76,7 @@ export class ProductQuery {
     { message: 'invalid categories id', each: true },
   )
   @IsOptional()
+  @IsPositive({ message: 'invalid category', each: true })
   @Type(() => Number)
   categories?: number[];
 }
