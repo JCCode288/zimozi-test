@@ -23,6 +23,9 @@ export class CartEntity {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
+  @Column({ type: 'int', nullable: false })
+  quantity: number;
+
   @Column({ type: 'boolean', default: false })
   is_processed: boolean;
 

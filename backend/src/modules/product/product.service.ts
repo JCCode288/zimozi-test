@@ -6,9 +6,14 @@ import { ImageEntity } from './entities/image.entity';
 import { StockEntity } from './entities/stock.entity';
 import { CartEntity } from './entities/cart.entity';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { AddProductDTO, EditProductDTO } from './interfaces/product.interfaces';
+import {
+  AddProductDTO,
+  EditProductDTO,
+  ProductQuery,
+} from './interfaces/product.interfaces';
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { ViewOrderHistory } from './entities/order.entity';
 
 export enum RepoName {
   PRODUCT = 'product',
@@ -32,6 +37,8 @@ export class ProductService {
     private readonly stockRepo: Repository<StockEntity>,
     @InjectRepository(CartEntity)
     private readonly cartRepo: Repository<CartEntity>,
+    @InjectRepository(ViewOrderHistory)
+    private readonly orderRepo: Repository<ViewOrderHistory>,
   ) {}
 
   private readonly product_alias = 'product';
@@ -41,11 +48,16 @@ export class ProductService {
   private readonly image_alias = 'image';
   private readonly basePath = __dirname + '/assets/';
 
-  async getAllProducts(query?) {
+  async getAllProducts({
+    categories,
+    min_price,
+    max_price,
+    name,
+  }: ProductQuery) {
     const builder = this.getRepo('product');
 
     builder
-      .select([`${this.product_alias}.name`, `${this.product_alias}.price`])
+      .where('1=1')
       .leftJoinAndSelect(
         `${this.product_alias}.categories`,
         this.category_alias,
@@ -61,6 +73,29 @@ export class ProductService {
         `${this.image_alias}.type = '0'`,
       );
 
+    if (categories) {
+      builder.andWhere(`${this.category_alias}.id IN (:...categories)`, {
+        categories,
+      });
+    }
+
+    if (min_price) {
+      builder.andWhere(`${this.product_alias}.price >= :min_price`, {
+        min_price,
+      });
+    }
+
+    if (max_price) {
+      builder.andWhere(`${this.product_alias}.price <= :max_price`, {
+        max_price,
+      });
+    }
+
+    if (name) {
+      name = '%' + name + '%';
+      builder.andWhere(`${this.product_alias}.name ILIKE :name`, { name });
+    }
+
     return builder.getManyAndCount();
   }
 
@@ -73,7 +108,7 @@ export class ProductService {
       .leftJoinAndSelect(`${this.product_alias}.stock`, this.stock_alias)
       .leftJoinAndSelect(`${this.product_alias}.images`, this.image_alias)
       .where(`${this.product_alias}.id = :id`, { id })
-      .getMany();
+      .getOneOrFail();
   }
 
   async addNewProduct(productBody: AddProductDTO) {
@@ -99,12 +134,7 @@ export class ProductService {
       const product = await em.save(prodData);
 
       return this.getRepo('product', em)
-        .leftJoinAndSelect(
-          `${this.product_alias}.categories`,
-          this.category_alias,
-        )
-        .leftJoinAndSelect(`${this.product_alias}.stock`, this.stock_alias)
-        .leftJoinAndSelect(`${this.product_alias}.images`, this.image_alias)
+        .select([`${this.product_alias}.name`, `${this.product_alias}.id`])
         .where(`${this.product_alias}.id = :id`, { id: product.id })
         .getOne();
     });
@@ -170,6 +200,12 @@ export class ProductService {
       .execute();
 
     return res.generatedMaps[0];
+  }
+
+  async getHistory(user_id: number) {
+    const builder = this.orderRepo.createQueryBuilder('or');
+
+    return builder.getManyAndCount();
   }
 
   async shareImage(imageId: number) {

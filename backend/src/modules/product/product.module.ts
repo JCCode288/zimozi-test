@@ -8,6 +8,7 @@ import { ImageEntity } from './entities/image.entity';
 import { ProductEntity } from './entities/product.entity';
 import { StockEntity } from './entities/stock.entity';
 import { existsSync, mkdir } from 'fs';
+import { ViewOrderHistory } from './entities/order.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { existsSync, mkdir } from 'fs';
       ImageEntity,
       ProductEntity,
       StockEntity,
+      ViewOrderHistory,
     ]),
   ],
   controllers: [ProductController],

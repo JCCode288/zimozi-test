@@ -1,5 +1,6 @@
 import {
   ArgumentsHost,
+  BadRequestException,
   Catch,
   ExceptionFilter,
   HttpException,
@@ -33,6 +34,11 @@ export default class GlobalExceptionHandler implements ExceptionFilter {
 
   getMessage(exception: unknown) {
     switch (true) {
+      case exception instanceof BadRequestException:
+        const res = (exception as any).getResponse();
+
+        if (res.message) return res.message;
+        return res;
       case exception instanceof HttpException:
         return exception.getResponse() as string;
 

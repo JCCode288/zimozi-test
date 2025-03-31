@@ -2,6 +2,8 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import GlobalExceptionHandler from './modules/global/global.exception';
 import { GlobalInterceptor } from './modules/global/global.interceptor';
+import { ValidationPipe } from '@nestjs/common';
+import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
