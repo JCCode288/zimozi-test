@@ -22,6 +22,9 @@ export default class UserEntity {
   @Column({ type: 'text', nullable: false })
   name: string;
 
+  @Column({ type: 'varchar', length: 255, unique: true })
+  email: string;
+
   @OneToMany(() => CartEntity, (cart) => cart.user)
   cart: CartEntity[];
 

@@ -8,6 +8,7 @@ import {
   Put,
   Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -24,6 +25,7 @@ import {
   CategoryQuery,
 } from './interfaces/category.interfaces';
 import { AddToCartDTO } from './interfaces/cart.interfaces';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('product')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -55,24 +57,28 @@ export class ProductController {
   }
 
   @Get('v1/cart')
+  @UseGuards(AuthGuard)
   getCartItems(@Query() cartQuery) {
-    const userId = 1; // change to get from auth
+    const userId = 2; // change to get from auth
     return this.productService.getAllFromCart(userId);
   }
 
   @Post('v1/cart')
+  @UseGuards(AuthGuard)
   addToCart(@Body() cartBody: AddToCartDTO) {
-    const userId = 1; // change to get from auth
+    const userId = 2; // change to get from auth
     return this.productService.addToCart(cartBody, userId);
   }
 
   @Post('v1/checkout')
+  @UseGuards(AuthGuard)
   checkout() {
-    const userId = 1; // change to get from auth
+    const userId = 2; // change to get from auth
     return this.productService.checkout(userId);
   }
 
   @Get('v1/orders')
+  @UseGuards(AuthGuard)
   getOrderHistory(@Query() query: OrderHistQuery) {
     const userId = 1;
     return this.productService.getHistory(userId, query);
@@ -90,6 +96,7 @@ export class ProductController {
 
   @Post('v1/admin/products')
   @UseInterceptors(FilesInterceptor('images'))
+  @UseGuards(AuthGuard)
   addNewProduct(
     @Body() productBody: AddProductDTO,
     @UploadedFiles() images: Express.Multer.File[],
@@ -103,11 +110,13 @@ export class ProductController {
   }
 
   @Put('v1/admin/products/:id')
+  @UseGuards(AuthGuard)
   editProduct(@Body() productBody, @Param('id') productId: number) {
     throw new HttpException('method not implemented', 400);
   }
 
   @Put('v1/admin/orders/:id')
+  @UseGuards(AuthGuard)
   editOrder(@Body() orderBody, @Param('id') orderId: number) {}
 
   @Get('v1/image')

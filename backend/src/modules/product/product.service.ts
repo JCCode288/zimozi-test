@@ -185,8 +185,10 @@ export class ProductService {
 
     const datas = await builder.execute();
 
-    return datas.map((d) => {
+    let cart_total = 0;
+    const cart_items = datas.map((d) => {
       d.total_price = d.total_quantity * d.product_price;
+      cart_total += d.total_price;
 
       const data = {};
       for (const key in d) {
@@ -201,6 +203,8 @@ export class ProductService {
 
       return data;
     });
+
+    return { cart_items, cart_total };
   }
 
   async addToCart(cartBody: AddToCartDTO, user_id: number) {
@@ -230,12 +234,17 @@ export class ProductService {
   }
 
   async checkout(user_id: number) {
-    return this.getRepo('cart')
+    const data = await this.getRepo('cart')
       .update()
       .set({ is_processed: true })
       .where('user_id = :user_id', { user_id })
       .andWhere('is_processed = false')
+      .returning('*')
       .execute();
+
+    if (!data.raw.length) throw new HttpException('failed to checkout', 500);
+
+    return data.raw[0];
   }
 
   async getAllCategories({ page, limit, name }: CategoryQuery) {
@@ -288,6 +297,11 @@ export class ProductService {
       const data = {};
       for (const key in d) {
         const [main, ...rest] = key.split('_');
+
+        if (main !== 'product' && main !== 'total') {
+          data[key] = d[key];
+          continue;
+        }
 
         if (!data[main]) data[main] = {};
 

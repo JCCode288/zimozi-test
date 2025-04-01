@@ -9,6 +9,7 @@ import { ProductEntity } from './entities/product.entity';
 import { StockEntity } from './entities/stock.entity';
 import { existsSync, mkdir } from 'fs';
 import { ViewOrderHistory } from './entities/order.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ViewOrderHistory } from './entities/order.entity';
       StockEntity,
       ViewOrderHistory,
     ]),
+    AuthModule,
   ],
   controllers: [ProductController],
   providers: [ProductService],

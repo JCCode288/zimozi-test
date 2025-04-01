@@ -7,8 +7,9 @@ import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    cors: { origin: [process.env.FE_URL!, '*'] },
+    logger: ['warn', 'error', 'fatal', 'log', 'verbose', 'debug'],
   });
+  app.enableCors();
   app.setGlobalPrefix('/api');
 
   const httpAdapter = app.get(HttpAdapterHost);

@@ -1,15 +1,9 @@
-import {
-  Global,
-  HttpException,
-  Injectable,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { LoginDTO, RegisterDTO } from './interfaces/auth.interface';
+import { RegisterDTO } from './interfaces/auth.interface';
 import { Auth } from 'firebase-admin/lib/auth/auth';
 import * as admin from 'firebase-admin';
 
-@Global()
 @Injectable()
 export class AuthService implements OnModuleInit {
   private firebase: Auth;
@@ -28,7 +22,7 @@ export class AuthService implements OnModuleInit {
       registerCred.uid,
     );
 
-    if (userRegistered) throw new HttpException('you already registered', 400);
+    if (userRegistered) return userRegistered;
 
     const user = await this.userService.createUser(registerCred);
 

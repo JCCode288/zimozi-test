@@ -15,6 +15,10 @@ export class RegisterDTO {
   @IsNotEmpty()
   public uid: string;
 
+  @IsEmail(undefined, { message: 'invalid email' })
+  @IsNotEmpty()
+  public email: string;
+
   @IsString({ message: 'invalid name' })
   @IsNotEmpty()
   public name: string;
