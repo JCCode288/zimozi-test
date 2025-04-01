@@ -14,13 +14,7 @@ export class UserService {
     private readonly adminService: AdminService,
   ) {}
 
-  public readonly alias = 'u';
-
-  getUserByEmail(email: string) {
-    return this.getRepo()
-      .where(`${this.alias}.email = :email`, { email })
-      .getOne();
-  }
+  public readonly alias = 'user';
 
   getUserByUid(uid: string) {
     return this.getRepo()

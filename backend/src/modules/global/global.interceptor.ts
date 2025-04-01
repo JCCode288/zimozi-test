@@ -20,6 +20,10 @@ export class GlobalInterceptor implements NestInterceptor {
           return res.send(data);
         }
 
+        if (data.data) {
+          return { status: res.statusCode, message: 'OK', ...data };
+        }
+
         return { status: res.statusCode, message: 'OK', data };
       }),
     );

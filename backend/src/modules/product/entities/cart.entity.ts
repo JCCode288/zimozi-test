@@ -1,4 +1,5 @@
 import {
+  AfterUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -19,7 +20,7 @@ export class CartEntity {
   @JoinColumn({ name: 'product_id', referencedColumnName: 'id' })
   products: ProductEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.cart, { eager: true })
+  @ManyToOne(() => UserEntity, (user) => user.cart)
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
@@ -34,4 +35,12 @@ export class CartEntity {
 
   @Column({ type: 'timestamp', default: () => 'NOW()' })
   updated_at: Date;
+
+  @AfterUpdate()
+  updateMaterialedView(ds) {
+    // getRepository(MyMaterializedView)
+    //   .query('REFRESH MATERIALIZED VIEW materialized_view')
+    //   .then((resp) => console.log('update materialized view ok'))
+    //   .catch((err) => console.error('update materialized view error'));
+  }
 }

@@ -8,9 +8,6 @@ export class AuthController {
 
   @Post('v1/register')
   register(@Body() registerDto: RegisterDTO) {
-    if (!registerDto.email || !registerDto.name || !registerDto.uid)
-      throw new HttpException('fields not filled', 400);
-
     return this.authService.register(registerDto);
   }
 }

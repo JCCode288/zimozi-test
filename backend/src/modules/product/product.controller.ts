@@ -13,9 +13,17 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { AddProductDTO, ProductQuery } from './interfaces/product.interfaces';
+import {
+  AddProductDTO,
+  OrderHistQuery,
+  ProductQuery,
+} from './interfaces/product.interfaces';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { AddCategoryDTO } from './interfaces/category.interfaces';
+import {
+  AddCategoryDTO,
+  CategoryQuery,
+} from './interfaces/category.interfaces';
+import { AddToCartDTO } from './interfaces/cart.interfaces';
 
 @Controller('product')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -53,14 +61,26 @@ export class ProductController {
   }
 
   @Post('v1/cart')
-  addToCart(@Body() productBody) {
+  addToCart(@Body() cartBody: AddToCartDTO) {
     const userId = 1; // change to get from auth
-    return this.productService.addToCart(productBody.id, userId);
+    return this.productService.addToCart(cartBody, userId);
+  }
+
+  @Post('v1/checkout')
+  checkout() {
+    const userId = 1; // change to get from auth
+    return this.productService.checkout(userId);
+  }
+
+  @Get('v1/orders')
+  getOrderHistory(@Query() query: OrderHistQuery) {
+    const userId = 1;
+    return this.productService.getHistory(userId, query);
   }
 
   @Get('v1/categories')
-  getAllCategories(@Query('name') name?: string) {
-    return this.productService.getAllCategories(name);
+  getAllCategories(@Query() query: CategoryQuery) {
+    return this.productService.getAllCategories(query);
   }
 
   @Post('v1/categories')
@@ -78,8 +98,6 @@ export class ProductController {
       productBody.categories = [productBody.categories];
 
     productBody.images = images;
-
-    console.log(productBody);
 
     return this.productService.addNewProduct(productBody);
   }

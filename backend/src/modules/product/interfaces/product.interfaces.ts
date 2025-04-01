@@ -1,11 +1,14 @@
 import { Type } from 'class-transformer';
 import {
+  IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
 } from 'class-validator';
+import { PaginationQuery } from '../../interfaces/response.interfaces';
 
 export class AddProductDTO {
   @IsString()
@@ -48,7 +51,7 @@ export class AddProductDTO {
 
 export type EditProductDTO = Partial<AddProductDTO> & { updated_at: Date };
 
-export class ProductQuery {
+export class ProductQuery extends PaginationQuery {
   @IsString({ message: 'invalid name' })
   @IsOptional()
   name?: string;
@@ -79,4 +82,16 @@ export class ProductQuery {
   @IsPositive({ message: 'invalid category', each: true })
   @Type(() => Number)
   categories?: number[];
+}
+
+export class OrderHistQuery extends PaginationQuery {
+  @IsDateString(undefined, { message: 'invalid min date' })
+  @IsOptional()
+  @Type(() => Date)
+  min_date?: Date;
+
+  @IsDateString(undefined, { message: 'invalid max date' })
+  @IsOptional()
+  @Type(() => Date)
+  max_date?: Date;
 }

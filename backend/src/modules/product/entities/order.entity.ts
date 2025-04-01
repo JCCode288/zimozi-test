@@ -1,10 +1,7 @@
-import { View, ViewColumn, ViewEntity } from 'typeorm';
+import { ViewColumn, ViewEntity } from 'typeorm';
 import { CartEntity } from './cart.entity';
 import { ProductEntity } from './product.entity';
-import { StockEntity } from './stock.entity';
-import { ImageEntity } from './image.entity';
 import { CategoryEntity } from './category.entity';
-import UserEntity from '../../user/user.entity';
 
 @ViewEntity({
   expression: (ds) => {
@@ -12,8 +9,9 @@ import UserEntity from '../../user/user.entity';
 
     builder
       .select([
-        'crt.quantity AS quantity',
-        'crt.created_at AS ordered_at',
+        'CAST(SUM(crt.quantity) AS INT) AS total_quantity',
+        'CAST(SUM(crt.quantity) * product.price AS INT) total_price',
+        'crt.updated_at AS ordered_at',
         'user.id',
       ])
       .leftJoinAndSelect(
@@ -21,22 +19,27 @@ import UserEntity from '../../user/user.entity';
         'product',
         '"crt"."product_id" = "product"."id"',
       )
-      .leftJoinAndSelect('product.categories', 'categories')
       .leftJoin('crt.user', 'user')
-      .where('"crt"."is_processed" = true');
+      .where('"crt"."is_processed" = true')
+      .groupBy('"product".id')
+      .addGroupBy('user.id')
+      .addGroupBy('crt.updated_at');
 
     return builder;
   },
 })
 export class ViewOrderHistory {
   @ViewColumn()
-  quantity: number;
-
-  @ViewColumn()
   product_id: number;
 
   @ViewColumn()
   product_name: string;
+
+  @ViewColumn()
+  total_quantity: number;
+
+  @ViewColumn()
+  total_price: number;
 
   @ViewColumn()
   product_description: string;
@@ -45,16 +48,7 @@ export class ViewOrderHistory {
   product_price: number;
 
   @ViewColumn()
-  product_categories: CategoryEntity[];
-
-  @ViewColumn()
   user_id: number;
-
-  @ViewColumn()
-  created_at: Date;
-
-  @ViewColumn()
-  updated_at: Date;
 
   @ViewColumn()
   ordered_at: Date;

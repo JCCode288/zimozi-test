@@ -9,11 +9,15 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   AddProductDTO,
   EditProductDTO,
+  OrderHistQuery,
   ProductQuery,
 } from './interfaces/product.interfaces';
 import { readFile, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { ViewOrderHistory } from './entities/order.entity';
+import { AddToCartDTO } from './interfaces/cart.interfaces';
+import { Pagination } from '../global/pagination.response';
+import { CategoryQuery } from './interfaces/category.interfaces';
 
 export enum RepoName {
   PRODUCT = 'product',
@@ -53,6 +57,8 @@ export class ProductService {
     min_price,
     max_price,
     name,
+    limit,
+    page,
   }: ProductQuery) {
     const builder = this.getRepo('product');
 
@@ -96,7 +102,11 @@ export class ProductService {
       builder.andWhere(`${this.product_alias}.name ILIKE :name`, { name });
     }
 
-    return builder.getManyAndCount();
+    const [data, total_data] = await builder.getManyAndCount();
+    const pagination = new Pagination(page, limit, total_data);
+
+    return { data, pagination };
+    // return data;
   }
 
   async getProductById(id: number) {
@@ -139,6 +149,7 @@ export class ProductService {
         .getOne();
     });
   }
+
   async editProduct(productBody: EditProductDTO, productId: number) {
     const productData: any = { ...productBody };
 
@@ -154,22 +165,68 @@ export class ProductService {
   }
 
   async getAllFromCart(userId: number) {
-    return this.getRepo('cart')
-      .leftJoin(`${this.cart_alias}.user`, 'u')
-      .innerJoin(`${this.cart_alias}.products`, this.product_alias)
+    const builder = this.getRepo('product')
+      .addSelect(
+        `CAST(SUM(${this.cart_alias}.quantity) AS INT) as total_quantity`,
+      )
+      .leftJoin(`${this.product_alias}.cart`, this.cart_alias)
+      .leftJoin(`${this.cart_alias}.user`, 'user')
+      .leftJoinAndMapOne(
+        `${this.product_alias}.images`,
+        `${this.product_alias}.images`,
+        this.image_alias,
+        `${this.image_alias}.type = '0'`,
+      )
       .where(`${this.cart_alias}.is_processed = false`)
-      .andWhere('u.id = :userId', { userId })
-      .getMany();
+      .andWhere('user.id = :userId', { userId })
+      .groupBy(`${this.product_alias}.id`)
+      .addGroupBy(`${this.image_alias}.id`)
+      .addGroupBy(`user.id`);
+
+    const datas = await builder.execute();
+
+    return datas.map((d) => {
+      d.total_price = d.total_quantity * d.product_price;
+
+      const data = {};
+      for (const key in d) {
+        const [main, ...rest] = key.split('_');
+
+        if (!data[main]) data[main] = {};
+
+        const joinKey = rest.join('_');
+
+        data[main][joinKey] = d[key];
+      }
+
+      return data;
+    });
   }
 
-  async addToCart(product_id: number, user_id: number) {
-    return this.getRepo('cart')
+  async addToCart(cartBody: AddToCartDTO, user_id: number) {
+    const product_id = cartBody.product_id;
+
+    const product = await this.getRepo('product')
+      .where('id = :product_id', {
+        product_id,
+      })
+      .getOne();
+
+    if (!product) throw new HttpException('product not found', 404);
+
+    const data = await this.getRepo('cart')
       .insert()
       .values({
         user: { id: user_id },
-        product: { id: product_id },
+        products: { id: product_id } as any,
+        quantity: cartBody.quantity,
       })
       .execute();
+
+    if (!data.generatedMaps.length)
+      throw new HttpException('failed to add into cart', 500);
+
+    return data.generatedMaps[0];
   }
 
   async checkout(user_id: number) {
@@ -177,19 +234,24 @@ export class ProductService {
       .update()
       .set({ is_processed: true })
       .where('user_id = :user_id', { user_id })
+      .andWhere('is_processed = false')
       .execute();
   }
 
-  async getAllCategories(category?: string) {
+  async getAllCategories({ page, limit, name }: CategoryQuery) {
     const builder = this.getRepo('category');
 
-    if (category) {
+    if (name) {
       builder.where(`${this.category_alias}.name ILIKE '%:category%'`, {
-        category,
+        name,
       });
     }
 
-    return builder.getManyAndCount();
+    const [data, total_data] = await builder.getManyAndCount();
+
+    const pagination = new Pagination(page, limit, total_data);
+
+    return { data, pagination };
   }
 
   async addNewCategory(name: string) {
@@ -202,10 +264,44 @@ export class ProductService {
     return res.generatedMaps[0];
   }
 
-  async getHistory(user_id: number) {
-    const builder = this.orderRepo.createQueryBuilder('or');
+  async getHistory(
+    user_id: number,
+    { limit, page, min_date, max_date }: OrderHistQuery,
+  ) {
+    const builder = this.orderRepo
+      .createQueryBuilder('order')
+      .where('user_id = :user_id', { user_id })
+      .limit(limit)
+      .offset((page - 1) * limit);
 
-    return builder.getManyAndCount();
+    if (min_date) {
+      builder.andWhere('order.order_date >= :min_date', { min_date });
+    }
+    if (max_date) {
+      builder.andWhere('order.order_date >= :max_date', { max_date });
+    }
+
+    const [datas, total_data] = await builder.getManyAndCount();
+    const data = datas.map((d) => {
+      d.total_price = d.total_quantity * d.product_price;
+
+      const data = {};
+      for (const key in d) {
+        const [main, ...rest] = key.split('_');
+
+        if (!data[main]) data[main] = {};
+
+        const joinKey = rest.join('_');
+
+        data[main][joinKey] = d[key];
+      }
+
+      return data;
+    });
+
+    const pagination = new Pagination(page, limit, total_data);
+
+    return { data, pagination };
   }
 
   async shareImage(imageId: number) {

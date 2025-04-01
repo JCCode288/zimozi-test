@@ -52,7 +52,7 @@ export class ProductEntity {
   images: ImageEntity[];
 
   @OneToMany(() => CartEntity, (cart) => cart.products)
-  cart: CartEntity;
+  cart: CartEntity[];
 
   @Column({ type: 'timestamp', default: () => 'NOW()' })
   created_at: Date;

@@ -24,8 +24,8 @@ export class AuthService implements OnModuleInit {
   }
 
   async register(registerCred: RegisterDTO) {
-    const userRegistered = await this.userService.getUserByEmail(
-      registerCred.email,
+    const userRegistered = await this.userService.getUserByUid(
+      registerCred.uid,
     );
 
     if (userRegistered) throw new HttpException('you already registered', 400);
