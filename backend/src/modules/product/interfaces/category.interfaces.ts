@@ -10,7 +10,7 @@ export class AddCategoryDTO {
 
 export type EditCategoryDTO = Partial<AddCategoryDTO>;
 
-export class CategoryQuery extends PaginationQuery {
+export class CategoryQuery {
   @IsString()
   @IsOptional()
   @IsNotEmpty()

@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { RegisterDTO } from './interfaces/auth.interface';
+import { LoginDTO, RegisterDTO } from './interfaces/auth.interface';
 import { Auth } from 'firebase-admin/lib/auth/auth';
 import * as admin from 'firebase-admin';
 
@@ -10,7 +10,7 @@ export class AuthService implements OnModuleInit {
   constructor(private readonly userService: UserService) {}
 
   onModuleInit() {
-    const cred = require('../../../' + process.env.FIREBASE_CRED_PATH);
+    const cred = require('../../../' + process.env.FBS_CRED_PATH);
     const app = admin.initializeApp({
       credential: admin.credential.cert(cred),
     });

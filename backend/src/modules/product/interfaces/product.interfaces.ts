@@ -46,7 +46,7 @@ export class AddProductDTO {
   @Type(() => Number)
   categories: number[];
 
-  images: Express.Multer.File[];
+  images: string[];
 }
 
 export type EditProductDTO = Partial<AddProductDTO> & { updated_at: Date };

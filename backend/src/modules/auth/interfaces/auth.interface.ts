@@ -5,9 +5,9 @@ export class LoginDTO {
   @IsNotEmpty()
   public email: string;
 
-  @IsString({ message: 'invalid name' })
+  @IsUUID(undefined, { message: 'invalid uid' })
   @IsNotEmpty()
-  public password: string;
+  public uid: string;
 }
 
 export class RegisterDTO {

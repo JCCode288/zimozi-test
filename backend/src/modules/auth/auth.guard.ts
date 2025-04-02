@@ -2,7 +2,6 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -14,33 +13,29 @@ export class AuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     try {
       const req = context.switchToHttp().getRequest();
-      console.log(req.headers);
       const auth = req?.headers?.authorization;
 
-      Logger.debug('token: ' + auth, 'AuthGuard');
+      if (!auth) throw new UnauthorizedException('unauthenticated');
 
-      // if (!auth) throw new UnauthorizedException('unauthorized');
+      const [type, token] = auth.split(' ');
 
-      // const [type, token] = auth.split(' ');
+      if (!type || type !== 'Bearer' || !token)
+        throw new UnauthorizedException('unauthenticated_1');
 
-      // console.log(type, token);
+      // check token here
+      const fbsUser = await this.authService.validateToken(token);
+      const user = await this.authService.findUser(fbsUser.uid);
 
-      // if (!type || type !== 'Bearer' || !token)
-      //   throw new UnauthorizedException('unauthorized_1');
+      if (!user) throw new UnauthorizedException('unauthenticated_1');
 
-      // // check token here
-      // const fbsUser = await this.authService.validateToken(token);
-      // const user = await this.authService.findUser(fbsUser.uid);
-
-      // if (!user || !user.admin)
-      //   throw new UnauthorizedException('unauthorized_1');
-
-      // req.user = user;
+      req.user = user;
 
       return true;
     } catch (err) {
       console.error(err);
-      throw new UnauthorizedException('unauthorized_2');
+      if (err instanceof UnauthorizedException) throw err;
+
+      throw new UnauthorizedException('unauthenticated_2');
     }
   }
 }

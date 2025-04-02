@@ -7,9 +7,7 @@ import {
   Post,
   Put,
   Query,
-  UploadedFiles,
   UseGuards,
-  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -19,13 +17,14 @@ import {
   OrderHistQuery,
   ProductQuery,
 } from './interfaces/product.interfaces';
-import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   AddCategoryDTO,
   CategoryQuery,
 } from './interfaces/category.interfaces';
 import { AddToCartDTO } from './interfaces/cart.interfaces';
 import { AuthGuard } from '../auth/auth.guard';
+import { User } from '../user/user.decorator';
+import UserEntity from '../user/user.entity';
 
 @Controller('product')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -58,30 +57,26 @@ export class ProductController {
 
   @Get('v1/cart')
   @UseGuards(AuthGuard)
-  getCartItems(@Query() cartQuery) {
-    const userId = 2; // change to get from auth
-    return this.productService.getAllFromCart(userId);
+  getCartItems(@Query() cartQuery, @User() user: UserEntity) {
+    return this.productService.getAllFromCart(user.id);
   }
 
   @Post('v1/cart')
   @UseGuards(AuthGuard)
-  addToCart(@Body() cartBody: AddToCartDTO) {
-    const userId = 2; // change to get from auth
-    return this.productService.addToCart(cartBody, userId);
+  addToCart(@Body() cartBody: AddToCartDTO, @User() user: UserEntity) {
+    return this.productService.addToCart(cartBody, user.id);
   }
 
   @Post('v1/checkout')
   @UseGuards(AuthGuard)
-  checkout() {
-    const userId = 2; // change to get from auth
-    return this.productService.checkout(userId);
+  checkout(@User() user: UserEntity) {
+    return this.productService.checkout(user.id);
   }
 
   @Get('v1/orders')
   @UseGuards(AuthGuard)
-  getOrderHistory(@Query() query: OrderHistQuery) {
-    const userId = 1;
-    return this.productService.getHistory(userId, query);
+  getOrderHistory(@Query() query: OrderHistQuery, @User() user: UserEntity) {
+    return this.productService.getHistory(user.id, query);
   }
 
   @Get('v1/categories')
@@ -90,21 +85,17 @@ export class ProductController {
   }
 
   @Post('v1/categories')
-  addNewCategory(@Body() category: AddCategoryDTO) {
+  @UseGuards(AuthGuard)
+  addNewCategory(@Body() category: AddCategoryDTO, @User() user: UserEntity) {
     return this.productService.addNewCategory(category.name);
   }
 
   @Post('v1/admin/products')
-  @UseInterceptors(FilesInterceptor('images'))
   @UseGuards(AuthGuard)
-  addNewProduct(
-    @Body() productBody: AddProductDTO,
-    @UploadedFiles() images: Express.Multer.File[],
-  ) {
+  addNewProduct(@Body() productBody: AddProductDTO) {
+    console.log(productBody);
     if (!Array.isArray(productBody?.categories))
       productBody.categories = [productBody.categories];
-
-    productBody.images = images;
 
     return this.productService.addNewProduct(productBody);
   }

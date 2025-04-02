@@ -16,11 +16,13 @@ export class UserService {
 
   public readonly alias = 'user';
 
-  getUserByUid(uid: string) {
-    return this.getRepo()
-      .leftJoinAndSelect(`${this.alias}.admin`, 'adm')
+  async getUserByUid(uid: string) {
+    const user = await this.getRepo()
+      .leftJoinAndSelect(`${this.alias}.admin`, this.adminService.alias)
       .where('uid = :uid', { uid })
       .getOne();
+
+    return user;
   }
 
   async createUser(user: RegisterDTO) {

@@ -140,7 +140,14 @@ export class ProductService {
         return cat;
       });
 
-      prodData.images = await this.mapFileImage(productBody.images); //image type not handled
+      prodData.images =
+        productBody.images?.map((im) => {
+          const img = new ImageEntity();
+          img.url = im;
+
+          return img;
+        }) ?? [];
+
       const product = await em.save(prodData);
 
       return this.getRepo('product', em)
@@ -247,7 +254,7 @@ export class ProductService {
     return data.raw[0];
   }
 
-  async getAllCategories({ page, limit, name }: CategoryQuery) {
+  async getAllCategories({ name }: CategoryQuery) {
     const builder = this.getRepo('category');
 
     if (name) {
@@ -258,9 +265,9 @@ export class ProductService {
 
     const [data, total_data] = await builder.getManyAndCount();
 
-    const pagination = new Pagination(page, limit, total_data);
+    // const pagination = new Pagination(page, limit, total_data);
 
-    return { data, pagination };
+    return data;
   }
 
   async addNewCategory(name: string) {

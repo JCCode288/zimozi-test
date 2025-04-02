@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 13%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 142 70% 50%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 142 70% 50%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 142 70% 50%;
+
+    --radius: 0.5rem;
+
+    --neon: 142 100% 63%;
+    --neon-glow: 142 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom neon effect classes using direct CSS instead of @apply */
+.neon-text {
+  color: hsl(var(--neon));
+  animation: glow 2s ease-in-out infinite;
+}
+
+.neon-border {
+  border: 1px solid hsl(var(--neon));
+  animation: border-glow 2s ease-in-out infinite;
+}
+
+.neon-glow {
+  box-shadow: 0 0 10px hsl(var(--neon-glow)), 0 0 20px hsl(var(--neon-glow));
+}
+
+.neon-button {
+  background-color: transparent;
+  color: hsl(var(--neon));
+  border: 1px solid hsl(var(--neon));
+  transition: all 300ms;
+}
+
+.neon-button:hover {
+  background-color: hsl(var(--neon));
+  color: hsl(var(--background));
+  box-shadow: 0 0 10px hsl(var(--neon-glow)), 0 0 20px hsl(var(--neon-glow));
+}
+
+/* Make sure we also fix the navbar.tsx file to use the correct class names */
+
