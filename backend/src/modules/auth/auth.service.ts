@@ -10,9 +10,12 @@ export class AuthService implements OnModuleInit {
   constructor(private readonly userService: UserService) {}
 
   onModuleInit() {
-    const cred = require('../../../' + process.env.FBS_CRED_PATH);
     const app = admin.initializeApp({
-      credential: admin.credential.cert(cred),
+      credential: admin.credential.cert({
+        projectId: process.env.FBS_PROJECT_ID,
+        privateKey: process.env.FBS_PRIVATE_KEY,
+        clientEmail: process.env.FBS_CLIENT_EMAIL,
+      }),
     });
     this.firebase = app.auth();
   }
