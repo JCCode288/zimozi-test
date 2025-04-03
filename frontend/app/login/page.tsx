@@ -62,7 +62,18 @@ export default function LoginPage() {
 
       try {
          await loginFBS(email, password);
-         await login();
+         const {
+            data: { register },
+            errors,
+         } = await login();
+
+         if (errors) throw errors;
+         if (register.admin) {
+            setAdmin(!!register.admin);
+            router.push("/admin/products");
+         } else {
+            router.push("/products");
+         }
 
          toast({
             title: "Login successful",
