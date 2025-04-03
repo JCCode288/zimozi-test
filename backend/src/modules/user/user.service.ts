@@ -29,7 +29,7 @@ export class UserService {
     const userInserted = await this.getRepo()
       .insert()
       .values(user)
-      .returning(['id', 'name', 'uid'])
+      .returning(['id', 'name', 'uid', 'email'])
       .execute();
 
     if (!userInserted.generatedMaps.length)
