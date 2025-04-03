@@ -66,7 +66,7 @@ export default function AdminProductsPage() {
          console.error("Search error:", err);
          toast({
             title: "Search failed",
-            description: "Failed to search products. Please try again.",
+            description: "Failed to search products?. Please try again.",
             variant: "destructive",
          });
       }
@@ -101,7 +101,7 @@ export default function AdminProductsPage() {
                      className="flex gap-2 mb-6"
                   >
                      <Input
-                        placeholder="Search products..."
+                        placeholder="Search products?..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="max-w-sm"
@@ -136,7 +136,7 @@ export default function AdminProductsPage() {
                            Try Again
                         </Button>
                      </div>
-                  ) : products.length === 0 ? (
+                  ) : products?.length === 0 ? (
                      <div className="text-center py-8">
                         <p className="text-muted-foreground mb-4">
                            No products found
@@ -164,7 +164,7 @@ export default function AdminProductsPage() {
                                  </TableRow>
                               </TableHeader>
                               <TableBody>
-                                 {products.map((product: IProduct) => (
+                                 {products?.map((product: IProduct) => (
                                     <TableRow key={product.id}>
                                        <TableCell>
                                           {product.images &&
