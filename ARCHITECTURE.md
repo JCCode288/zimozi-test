@@ -33,13 +33,21 @@ zimozi-db diagram
 > -  I uses v0 to help me create inteface and integrations to shorten time. as you can see, the code became almost unmaintainable. i need to create few queries from scratch and adjusting it again.
 > -  I also uses zustand for state management as it was simpler to setup and have more durable and intuitive persist options. this can give nextjs more advantage for prefetching data.
 
+## Authentication
+
+**Main Flow**
+
+-  **Login Firebase (Frontend)** > **Register/Login User (Backend)** > **Validate user token id (Backend)**
+
+Authentication will be mostly managed in firebase auth. backend just to keep track of user and elevate user to admin privilege.
+
 ## Notes
 
 i do think this is one of my bad work. i prioritized speed than quality and maintainability for this project. i focused on backend functionality (which i may miss some) to adjust the timeline for the main flow only (main CRUD).
 
 ## Deployment
 
-as my vercel freebies is being used by my other projects. and google functions needed me to config for `pay-as-you-go` i opted for deploying in my old laptop (linux server) using docker
+deployend the frontend-backend on vercel. frontend using usual free plan and backend using vercel functions for easier management. keeping in one repo for easier deployment for both apps
 
--  link FE: <a>https://zimozi.fe.jc288.xyz</a>
--  link BE: <a>https://zimozi.be.jc288.xyz</a>
+-  link FE: <a>https://zimozi-test-ashy.vercel.app/</a>
+-  link BE: <a>https://zimozi-test-be.vercel.app/api/</a>
