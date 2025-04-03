@@ -12,7 +12,7 @@ import {
   OrderHistQuery,
   ProductQuery,
 } from './interfaces/product.interfaces';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { ViewOrderHistory } from './entities/order.entity';
 import { AddToCartDTO } from './interfaces/cart.interfaces';
@@ -342,23 +342,23 @@ export class ProductService {
     return readFile(path);
   }
 
-  private mapFileImage(images: Express.Multer.File[]) {
-    const mappedImages = images.map(async (im, idx) => {
-      const url = `${im.originalname}-${new Date().getTime()}`;
-      await writeFile(this.basePath + url, im.buffer)
-        .then(console.log)
-        .catch(console.error);
+  // private mapFileImage(images: Express.Multer.File[]) {
+  //   const mappedImages = images.map(async (im, idx) => {
+  //     const url = `${im.originalname}-${new Date().getTime()}`;
+  //     await writeFile(this.basePath + url, im.buffer)
+  //       .then(console.log)
+  //       .catch(console.error);
 
-      const image = new ImageEntity();
-      image.name = im.originalname;
-      image.type = idx;
-      image.url = url;
+  //     const image = new ImageEntity();
+  //     image.name = im.originalname;
+  //     image.type = idx;
+  //     image.url = url;
 
-      return image;
-    });
+  //     return image;
+  //   });
 
-    return Promise.all(mappedImages);
-  }
+  //   return Promise.all(mappedImages);
+  // }
 
   private getRepo(name: `${RepoName}`, entityManager?: EntityManager) {
     switch (name) {
