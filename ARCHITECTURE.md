@@ -8,7 +8,7 @@
 -  Framework: **NestJS - Express**
 -  Auth: **Firebase Auth**
 
-> I picked the simpler REST API for the backend to simplify the app. based on the requirements, the app itself is pretty complex and should take more time to think about the architecture and data passing. also RBAC for the app more than 3 days. So to save time i make it simpler for the connection from NextJS server side to NestJS backend
+> I picked the simpler REST API for the backend to simplify the app. based on the requirements, the app itself is pretty complex and should take more time to think about the architecture and data passing. also RBAC for the app more than 3 days. So to save time i make it simpler for the connection from NextJS server side to NestJS backend. i also havent configure my cors origin.
 
 ### DB Diagram
 
@@ -28,12 +28,10 @@ zimozi-db diagram
 -  Fetcher: **Axios**
 -  GraphQL: **Apollo**
 
-> GraphQL for fetching data from NextJS server side is preferred instead of BE NestJS graphql as frontend has advantage in this configuration of caching and auto refetching in GraphQL.
-> Main operation still uses REST API for easier debugging.
-> I uses v0 to help me create inteface and integrations to shorten time. as you can see, the code became almost unmaintainable. i need to create few queries from scratch and adjusting it again.
-> I also uses zustand for state management as it was simpler to setup and have more durable and intuitive persist options. this can give nextjs more advantage for prefetching data
-
->
+> -  GraphQL for fetching data from NextJS server side is preferred instead of BE NestJS graphql as frontend has advantage in this configuration of caching and auto refetching in GraphQL.
+> -  Main operation still uses REST API for easier debugging.
+> -  I uses v0 to help me create inteface and integrations to shorten time. as you can see, the code became almost unmaintainable. i need to create few queries from scratch and adjusting it again.
+> -  I also uses zustand for state management as it was simpler to setup and have more durable and intuitive persist options. this can give nextjs more advantage for prefetching data.
 
 ## Notes
 
@@ -41,4 +39,7 @@ i do think this is one of my bad work. i prioritized speed than quality and main
 
 ## Deployment
 
-as my vercel freebies is being used by my other projects. and google functions needed me to config for `pay-as-you-go` i opted for deploying in my old laptop (linux server)
+as my vercel freebies is being used by my other projects. and google functions needed me to config for `pay-as-you-go` i opted for deploying in my old laptop (linux server) using docker
+
+-  link FE: <a>https://zimozi.fe.jc288.xyz</a>
+-  link BE: <a>https://zimozi.be.jc288.xyz</a>
