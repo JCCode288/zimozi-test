@@ -29,7 +29,5 @@ async function bootstrap() {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!nestServer) nestServer = await bootstrap(); //not handling error as it should fail if app not starting
 
-  res.send('OK');
-
-  // nestServer(req, res);
+  nestServer(req, res);
 }
