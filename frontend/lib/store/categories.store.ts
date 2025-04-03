@@ -8,7 +8,7 @@ import { ICategory } from "../api/interfaces/products.interfaces";
 const clientStorage = createJSONStorage(() => localStorage);
 
 interface IProductData {
-   categories: ICategory[] | null;
+   categories: ICategory[] | [];
 }
 
 interface IProductStore extends IProductData {
@@ -19,7 +19,7 @@ export const categoryStore = create<IProductStore>()(
    persist(
       (set, get) => ({
          // Default initial state
-         categories: null,
+         categories: [],
 
          setCategories(categories) {
             set((state) => ({ ...state, categories }));

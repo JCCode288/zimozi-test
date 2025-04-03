@@ -13,10 +13,10 @@ import {
 const clientStorage = createJSONStorage(() => localStorage);
 
 interface IProductData {
-   products: IProduct[] | null;
-   detail: IProduct | null;
-   cart: ICart | null;
-   histories: IOrder[] | null;
+   products: IProduct[] | [];
+   detail: IProduct | {};
+   cart: ICart | {};
+   histories: IOrder[] | [];
    form: IAddProduct | {};
 }
 
@@ -32,10 +32,10 @@ export const productStore = create<IProductStore>()(
    persist(
       (set, get) => ({
          // Default initial state
-         products: null,
-         detail: null,
-         cart: null,
-         histories: null,
+         products: [],
+         detail: {},
+         cart: {},
+         histories: [],
          form: {},
 
          setProducts(products) {
