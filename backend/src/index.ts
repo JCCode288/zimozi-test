@@ -3,13 +3,13 @@ import { AppModule } from './app.module';
 import GlobalExceptionHandler from './modules/global/global.exception';
 import { GlobalInterceptor } from './modules/global/global.interceptor';
 import * as express from 'express';
-import * as functions from 'firebase-functions';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import 'reflect-metadata';
 
-const expressServer = express();
+let nestServer;
 
 async function bootstrap() {
+  const expressServer = express();
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(expressServer),
@@ -25,8 +25,14 @@ async function bootstrap() {
   app.useGlobalInterceptors(new GlobalInterceptor());
 
   await app.init();
+  return httpAdapter.httpAdapter.getInstance();
 }
-export const api = functions.https.onRequest(async (request, response) => {
-  await bootstrap();
-  expressServer(request, response);
-});
+// export const api = functions.https.onRequest(async (request, response) => {
+//   await bootstrap();
+//   expressServer(request, response);
+// });
+
+export async function handler(req: Request, res: Response) {
+  if (!nestServer) nestServer = await bootstrap();
+  nestServer(req, res);
+}
