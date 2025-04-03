@@ -24,7 +24,7 @@ const imports = [
         password: process.env.DB_PASSWORD!,
         port: +process.env.DB_PORT!,
         database: process.env.DB_NAME!,
-        ssl: !(process.env.NODE_ENV === 'development'),
+        ssl: false,
         synchronize: process.env.NODE_ENV === 'development',
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
       };
