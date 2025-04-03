@@ -21,6 +21,7 @@ import { Separator } from "../../components/ui/separator";
 import { loginStore } from "../../lib/store/login.store";
 import { useErrorHandler } from "../../hooks/use-error-handler";
 import { useToast } from "../../hooks/use-toast";
+import { useRegister } from "@/lib/graphql/queries/register.query";
 
 export default function RegisterPage() {
    const [name, setName] = useState("");
@@ -43,6 +44,7 @@ export default function RegisterPage() {
       googleLogin,
       loading,
       user,
+      setAdmin,
    } = loginStore();
 
    // Add the toast hook inside the component
@@ -55,6 +57,8 @@ export default function RegisterPage() {
       }
    }, [user, router]);
 
+   const [register] = useRegister();
+
    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       clearError();
@@ -66,7 +70,19 @@ export default function RegisterPage() {
       }
 
       try {
-         await registerUser(name, email, password);
+         const userCred = await registerUser(name, email, password);
+         const {
+            data: { register: userData },
+            errors,
+         } = await register({ variables: userCred });
+
+         if (errors) throw errors;
+         if (userData.admin) {
+            setAdmin(!!userData.admin);
+            router.push("/admin/products");
+         } else {
+            router.push("/products");
+         }
 
          // Show success message
          toast({

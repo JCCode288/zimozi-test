@@ -25,6 +25,7 @@ import { AddToCartDTO } from './interfaces/cart.interfaces';
 import { AuthGuard } from '../auth/auth.guard';
 import { User } from '../user/user.decorator';
 import UserEntity from '../user/user.entity';
+import { AdminGuard } from '../auth/admin.guard';
 
 @Controller('product')
 @UsePipes(new ValidationPipe({ transform: true }))
@@ -91,7 +92,7 @@ export class ProductController {
   }
 
   @Post('v1/admin/products')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   addNewProduct(@Body() productBody: AddProductDTO) {
     console.log(productBody);
     if (!Array.isArray(productBody?.categories))
@@ -101,13 +102,13 @@ export class ProductController {
   }
 
   @Put('v1/admin/products/:id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   editProduct(@Body() productBody, @Param('id') productId: number) {
     throw new HttpException('method not implemented', 400);
   }
 
   @Put('v1/admin/orders/:id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, AdminGuard)
   editOrder(@Body() orderBody, @Param('id') orderId: number) {}
 
   @Get('v1/image')

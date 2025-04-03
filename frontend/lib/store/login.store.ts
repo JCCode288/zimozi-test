@@ -8,6 +8,7 @@ import type { User } from "firebase/auth";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import { cookies } from "next/headers";
+import { IRegister } from "../api/interfaces/login.interfaces";
 
 const clientStorage = createJSONStorage(() => localStorage);
 
@@ -22,7 +23,11 @@ interface IAuthData {
 
 interface IAuthStore extends IAuthData {
    login(email: string, password: string): void;
-   register: (name: string, email: string, password: string) => void;
+   register: (
+      name: string,
+      email: string,
+      password: string
+   ) => Promise<IRegister>;
    googleLogin: () => void;
    setUser: (user: User) => void;
    setAdmin: (isAdmin: boolean) => void;
@@ -54,11 +59,7 @@ export const loginStore = create<IAuthStore>()(
             }));
          },
 
-         register: async (
-            name: string,
-            email: string,
-            password: string
-         ) => {
+         async register(name: string, email: string, password: string) {
             set((state) => ({ ...state, loading: true }));
             try {
                const user = await register(name, email, password);
@@ -75,6 +76,12 @@ export const loginStore = create<IAuthStore>()(
                   isLoggedIn: true,
                   loading: false,
                }));
+
+               return {
+                  email: user.email,
+                  name: user.displayName,
+                  uid: user.uid,
+               };
             } catch (err) {
                set((state) => ({ ...state, loading: false }));
                console.error("Registration error:", err);
